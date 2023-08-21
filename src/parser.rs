@@ -11,13 +11,12 @@ use nom::{
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
-    default::default,
     str::{self, FromStr},
 };
 use tracing::trace;
 
 pub fn parse(input: &str) -> Result<Parsed, nom::Err<nom::error::Error<&str>>> {
-    let mut output: Parsed = default();
+    let mut output = Parsed::default();
     let (input, _) = tuple((
         map(line(tag("Name"), not_line_ending), |name| {
             trace!(%name);
@@ -91,7 +90,7 @@ fn number<T: FromStr>(input: &str) -> IResult<&str, T> {
     map_res(digit1, str::parse)(input)
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Parsed {
     pub name: String,
     pub cas: Option<u64>,
