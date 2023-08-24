@@ -1,12 +1,12 @@
-use anyhow::{Error, Result};
 use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{char, digit1, line_ending, not_line_ending, one_of, space0},
     combinator::{map, map_res, recognize},
+    error::Error,
     multi::{length_count, many0, many1},
     sequence::{delimited, separated_pair, terminated, tuple},
-    IResult,
+    Err, IResult,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -74,7 +74,7 @@ fn line<'a, T>(
 
 fn peaks(input: &str) -> IResult<&str, Vec<(u64, u64)>> {
     length_count(
-        line(tag("Num Peaks"), number::<u64>),
+        line(tag("Num Peaks"), number::<usize>),
         terminated(
             separated_pair(number, multiseparator, number),
             multiseparator,
@@ -117,7 +117,7 @@ impl Parsed {
 }
 
 impl FromStr for Parsed {
-    type Err = Error;
+    type Err = Err<Error<String>>;
 
     fn from_str(value: &str) -> Result<Self, Self::Err> {
         Ok(parse(value).map_err(|error| error.to_owned())?)
